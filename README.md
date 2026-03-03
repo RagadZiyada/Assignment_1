@@ -1,8 +1,8 @@
 # Assignment\_1
 
 \# Lab 4 – Text Feature Engineering with Azure ML
-
-
+<img width="1897" height="869" alt="image" src="https://github.com/user-attachments/assets/a1eaf8ff-0a30-4de8-bd9e-2e5da7590c66" />
+<img width="441" height="618" alt="image" src="https://github.com/user-attachments/assets/f6d60fef-8d0b-4d7f-ab30-03ecd0096342" />
 
 This lab focuses on transforming Amazon Electronics review text into machine learning features using Azure Machine Learning components and pipelines. The work builds on the curated Gold dataset created in the previous lab and uses a sampled version of the dataset to make feature engineering more computationally manageable.
 
