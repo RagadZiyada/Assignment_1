@@ -8,7 +8,7 @@ This lab focuses on transforming Amazon Electronics review text into machine lea
 
 
 
-\## Objective
+## Objective
 
 
 
@@ -16,7 +16,7 @@ The goal of this lab was to inspect the curated review dataset, validate the sch
 
 
 
-\## Dataset Exploration and Validation
+## Dataset Exploration and Validation
 
 
 
@@ -24,61 +24,20 @@ The first part of the lab was completed in Databricks. The curated Gold dataset 
 
 
 
-\- review text fields such as `reviewText` were stored as strings
+- review text fields such as `reviewText` were stored as strings
 
-\- rating values such as `overall` were numeric
+- rating values such as `overall` were numeric
 
-\- entity identifiers such as `asin` and `reviewerID` were present
+- entity identifiers such as `asin` and `reviewerID` were present
 
-\- no major malformed data types appeared in the key columns
+- no major malformed data types appeared in the key columns
 
 
 
 Missing and empty values were also checked for important columns like `reviewText`, `overall`, `asin`, and `reviewerID`.
 
 
-
-\## Visualizations
-
-
-
-Two main visualizations were created:
-
-
-
-\### 1. Rating Distribution
-
-This plot shows how reviews are distributed across rating values. It matters because it helps identify possible class imbalance in the data. If one rating dominates, that could affect downstream modeling and evaluation.
-
-
-
-\### 2. Review Length Distribution
-
-This plot shows the distribution of review text length. It matters because very short reviews may contain weak signal, while longer reviews may provide richer information for text-based features.
-
-
-
-\## Sampled Dataset
-
-
-
-The original curated dataset is very large, so a sampled subset was created for the Azure ML pipeline. This smaller dataset makes feature engineering more practical while still preserving meaningful patterns in the data.
-
-
-
-The sampled dataset was written back to the Gold layer as:
-
-
-
-`features\_v1\_sampled`
-
-
-
-This allowed the original `features\_v1` dataset to remain unchanged.
-
-
-
-\## Azure ML Feature Engineering Pipeline
+## Azure ML Feature Engineering Pipeline
 
 
 
@@ -86,19 +45,19 @@ The second part of the lab was implemented using Azure ML command components. Ea
 
 
 
-\### Components Created
+### Components Created
 
 
 
-\#### 1. Split Dataset
+#### 1. Split Dataset
 
 This component split the sampled dataset into:
 
-\- training set
+- training set
 
-\- validation set
+- validation set
 
-\- test set
+- test set
 
 
 
@@ -106,21 +65,21 @@ This was important to avoid data leakage, especially for TF-IDF fitting.
 
 
 
-\#### 2. Normalize Review Text
+#### 2. Normalize Review Text
 
 This component cleaned the review text by:
 
-\- converting text to lowercase
+- converting text to lowercase
 
-\- removing punctuation
+- removing punctuation
 
-\- replacing URLs
+- replacing URLs
 
-\- replacing numbers
+- replacing numbers
 
-\- trimming whitespace
+- trimming whitespace
 
-\- filtering out very short reviews
+- filtering out very short reviews
 
 
 
@@ -128,13 +87,13 @@ This step ensured that later features were built on cleaner and more consistent 
 
 
 
-\#### 3. Review Length Features
+#### 3. Review Length Features
 
 This component created:
 
-\- `review\_length\_words`
+- `review\_length\_words`
 
-\- `review\_length\_chars`
+- `review\_length\_chars`
 
 
 
@@ -142,17 +101,17 @@ These basic features capture how long a review is, which can sometimes correlate
 
 
 
-\#### 4. Sentiment Features
+#### 4. Sentiment Features
 
 This component used sentiment analysis to create:
 
-\- `sentiment\_pos`
+- `sentiment\_pos`
 
-\- `sentiment\_neg`
+- `sentiment\_neg`
 
-\- `sentiment\_neu`
+- `sentiment\_neu`
 
-\- `sentiment\_compound`
+- `sentiment\_compound`
 
 
 
@@ -160,39 +119,39 @@ These features capture emotional tone and polarity in the reviews.
 
 
 
-\#### 5. TF-IDF Features
+#### 5. TF-IDF Features
 
 This component used TF-IDF vectorization to create sparse text features based on word importance. The vectorizer was fit only on the training split and then applied to validation and test splits to avoid leakage.
 
 
 
-\#### 6. SBERT Embeddings
+#### 6. SBERT Embeddings
 
 This component created dense semantic embeddings from the review text using Sentence-BERT. These features capture deeper contextual meaning beyond simple word frequency.
 
 
 
-\#### 7. Merge Features
+#### 7. Merge Features
 
 This component merged all engineered features into one final feature-enriched dataset using the entity keys:
 
-\- `asin`
+- `asin`
 
-\- `reviewerID`
+- `reviewerID`
 
 
 
-\## Environment and Reproducibility
+## Environment and Reproducibility
 
 
 
 Each Azure ML component was defined using:
 
-\- a Python script
+- a Python script
 
-\- a `component.yml` file
+- a `component.yml` file
 
-\- a `conda.yml` file
+- a `conda.yml` file
 
 
 
@@ -200,7 +159,7 @@ Using explicit environments helped ensure the required packages such as `pandas`
 
 
 
-\## Pipeline Execution
+## Pipeline Execution
 
 
 
@@ -230,7 +189,7 @@ The pipeline completed successfully in Azure ML.
 
 
 
-\## Feature Store Registration
+## Feature Store Registration
 
 
 
@@ -242,7 +201,7 @@ The entity used was:
 
 
 
-\- `AmazonReview`
+- `AmazonReview`
 
 
 
@@ -250,23 +209,23 @@ The final feature set registered was:
 
 
 
-\- `amazon\_review\_text\_features`
+- `amazon\_review\_text\_features`
 
 
 
-\## Challenges Faced
+## Challenges Faced
 
 
 
 This lab initially had a few setup-related issues, including:
 
-\- missing component files in the new repository
+- missing component files in the new repository
 
-\- some components not yet having explicit environments
+- some components not yet having explicit environments
 
-\- Azure ML input handling requiring folder-aware parquet loading
+- Azure ML input handling requiring folder-aware parquet loading
 
-\- a small CLI command issue while registering the feature store entity
+- a small CLI command issue while registering the feature store entity
 
 
 
@@ -274,25 +233,25 @@ These issues were fixed by creating the full component structure, adding `conda.
 
 
 
-\## Final Outcome
+## Final Outcome
 
 
 
 At the end of this lab, I successfully:
 
-\- explored and validated the curated dataset
+- explored and validated the curated dataset
 
-\- created a sampled dataset
+- created a sampled dataset
 
-\- built Azure ML feature engineering components
+- built Azure ML feature engineering components
 
-\- registered all components
+- registered all components
 
-\- ran the full Azure ML pipeline successfully
+- ran the full Azure ML pipeline successfully
 
-\- produced merged feature output
+- produced merged feature output
 
-\- prepared the assets needed for Feature Store registration
+- prepared the assets needed for Feature Store registration
 
 
 
