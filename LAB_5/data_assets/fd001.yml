@@ -1,0 +1,6 @@
+$schema: https://azuremlschemas.azureedge.net/latest/data.schema.json
+name: nasa-fd001-data
+version: 3
+type: uri_folder
+path: C:\Users\ragad\Desktop\LAB_5\data
+description: NASA C-MAPSS FD001 dataset for Lab 5

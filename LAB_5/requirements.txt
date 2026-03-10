@@ -1,0 +1,9 @@
+pandas
+numpy
+scikit-learn
+scipy
+tsfresh
+deap
+lightgbm
+joblib
+pyarrow

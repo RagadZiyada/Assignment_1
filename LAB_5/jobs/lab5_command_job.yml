@@ -1,0 +1,19 @@
+$schema: https://azuremlschemas.azureedge.net/latest/commandJob.schema.json
+
+code: ../
+command: >-
+  python src/run_pipeline.py
+  --data_dir ${{inputs.data_dir}}
+  --output_dir ${{outputs.output_dir}}
+
+environment: azureml:lab5-tsfresh-deap-env:2
+compute: azureml:cpu-cluster
+
+inputs:
+  data_dir:
+    type: uri_folder
+    path: azureml:nasa-fd001-data@latest
+
+outputs:
+  output_dir:
+    type: uri_folder
