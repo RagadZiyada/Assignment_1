@@ -1,0 +1,23 @@
+$schema: https://azuremlschemas.azureedge.net/latest/environment.schema.json
+name: lab5-tsfresh-deap-env
+version: 2
+
+image: mcr.microsoft.com/azureml/openmpi4.1.0-ubuntu20.04:latest
+
+conda_file:
+  channels:
+    - conda-forge
+    - defaults
+  dependencies:
+    - python=3.10
+    - pip
+    - pip:
+        - pandas
+        - numpy
+        - scikit-learn
+        - scipy
+        - tsfresh
+        - deap
+        - lightgbm
+        - joblib
+        - pyarrow
