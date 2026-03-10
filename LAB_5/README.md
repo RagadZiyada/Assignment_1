@@ -1,8 +1,7 @@
-\# LAB 5 – Scalable Feature Extraction and Selection for Predictive Maintenance
+# LAB 5 – Scalable Feature Extraction and Selection for Predictive Maintenance
 
+<img width="1908" height="881" alt="Screenshot 2026-03-10 185830" src="https://github.com/user-attachments/assets/a4d4cbe9-78fa-453f-8585-192ff1fbdef8" />
 
-
-!\[alt text](<Screenshot 2026-03-10 185830.png>)
 
 
 
@@ -20,7 +19,7 @@ The pipeline was designed to run both locally and on Azure Machine Learning, dem
 
 
 
-\# Pipeline Workflow
+# Pipeline Workflow
 
 
 
@@ -32,7 +31,7 @@ The pipeline is composed of several sequential stages that transform raw time-se
 
 
 
-\## 1. Data Preparation
+## 1. Data Preparation
 
 
 
@@ -44,13 +43,13 @@ During this step:
 
 
 
-\- raw training and test data are loaded
+- raw training and test data are loaded
 
-\- column names are assigned
+- column names are assigned
 
-\- Remaining Useful Life (RUL) is calculated for each engine cycle
+- Remaining Useful Life (RUL) is calculated for each engine cycle
 
-\- cleaned datasets are saved for further processing
+- cleaned datasets are saved for further processing
 
 
 
@@ -62,7 +61,7 @@ This creates the target variable needed for model training.
 
 
 
-\## 2. Feature Extraction
+## 2. Feature Extraction
 
 
 
@@ -74,13 +73,13 @@ Instead of using raw sensor readings, tsfresh generates descriptive features suc
 
 
 
-\- mean
+- mean
 
-\- variance
+- variance
 
-\- autocorrelation
+- autocorrelation
 
-\- frequency-based statistics
+- frequency-based statistics
 
 
 
@@ -92,7 +91,7 @@ These features capture patterns in the engine behavior over time.
 
 
 
-\## 3. Feature Filtering
+## 3. Feature Filtering
 
 
 
@@ -100,11 +99,11 @@ Because feature extraction can generate a very large number of features, several
 
 
 
-\- \*\*Variance Threshold\*\* removes features with very low variability
+- \*\*Variance Threshold\*\* removes features with very low variability
 
-\- \*\*Correlation filtering\*\* removes highly redundant features
+- \*\*Correlation filtering\*\* removes highly redundant features
 
-\- \*\*Mutual Information ranking\*\* keeps only the most informative features
+- \*\*Mutual Information ranking\*\* keeps only the most informative features
 
 
 
@@ -116,7 +115,7 @@ This step reduces dimensionality and improves model efficiency.
 
 
 
-\## 4. Genetic Algorithm Feature Selection
+## 4. Genetic Algorithm Feature Selection
 
 
 
@@ -136,7 +135,7 @@ Each candidate solution is evaluated using cross-validated RMSE, and the algorit
 
 
 
-\## 5. Model Training
+## 5. Model Training
 
 
 
@@ -152,11 +151,11 @@ The model predicts the Remaining Useful Life of engines and is evaluated using:
 
 
 
-\- RMSE (Root Mean Squared Error)
+- RMSE (Root Mean Squared Error)
 
-\- MAE (Mean Absolute Error)
+- MAE (Mean Absolute Error)
 
-\- R² Score
+- R² Score
 
 
 
@@ -164,7 +163,7 @@ The model predicts the Remaining Useful Life of engines and is evaluated using:
 
 
 
-\# Azure Machine Learning Execution
+# Azure Machine Learning Execution
 
 
 
@@ -176,13 +175,13 @@ Azure ML provides:
 
 
 
-\- reproducible environments
+- reproducible environments
 
-\- scalable compute resources
+- scalable compute resources
 
-\- experiment tracking
+- experiment tracking
 
-\- centralized logging
+- centralized logging
 
 
 
@@ -194,13 +193,13 @@ The job logs show:
 
 
 
-\- feature extraction progress
+- feature extraction progress
 
-\- selected feature counts
+- selected feature counts
 
-\- model training results
+- model training results
 
-\- execution runtime
+- execution runtime
 
 
 
@@ -208,7 +207,7 @@ The job logs show:
 
 
 
-\# Running the Pipeline Locally
+# Running the Pipeline Locally
 
 
 
@@ -228,7 +227,7 @@ python src/run\_pipeline.py --data\_dir data --output\_dir outputs\_local
 
 
 
-\# Running the Pipeline on Azure
+# Running the Pipeline on Azure
 
 
 
@@ -256,7 +255,7 @@ Azure will execute the full pipeline and store logs and outputs.
 
 
 
-\# Key Results
+# Key Results
 
 
 
@@ -264,13 +263,13 @@ The pipeline successfully:
 
 
 
-\- extracted statistical time-series features
+- extracted statistical time-series features
 
-\- selected the most informative features
+- selected the most informative features
 
-\- trained a predictive maintenance model
+- trained a predictive maintenance model
 
-\- evaluated prediction performance using RMSE
+- evaluated prediction performance using RMSE
 
 
 
@@ -282,7 +281,7 @@ Azure job logs also provide execution time and pipeline progress.
 
 
 
-\# Conclusion
+# Conclusion
 
 
 
