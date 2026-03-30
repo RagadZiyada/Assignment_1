@@ -1,0 +1,44 @@
+$schema: https://azuremlschemas.azureedge.net/latest/pipelineJob.schema.json
+type: pipeline
+
+compute: azureml:cpu-cluster
+
+inputs:
+  train_data:
+    type: uri_folder
+    path: azureml:amazon_electronics_train@latest
+
+  val_data:
+    type: uri_folder
+    path: azureml:amazon_electronics_val@latest
+
+jobs:
+
+  train_logistic:
+    type: command
+    component: azureml:train_logistic@latest
+    inputs:
+      train: ${{parent.inputs.train_data}}
+      val: ${{parent.inputs.val_data}}
+
+  train_rf:
+    type: command
+    component: azureml:train_random_forest@latest
+    inputs:
+      train: ${{parent.inputs.train_data}}
+      val: ${{parent.inputs.val_data}}
+
+  train_gb:
+    type: command
+    component: azureml:train_gradient_boosting@latest
+    inputs:
+      train: ${{parent.inputs.train_data}}
+      val: ${{parent.inputs.val_data}}
+
+  evaluate:
+    type: command
+    component: azureml:evaluate_models@latest
+    inputs:
+      logistic: ${{parent.jobs.train_logistic.outputs.model}}
+      rf: ${{parent.jobs.train_rf.outputs.model}}
+      gb: ${{parent.jobs.train_gb.outputs.model}}

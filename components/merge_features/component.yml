@@ -18,7 +18,7 @@ outputs:
     type: uri_folder
 
 code: .
-command: >-
+command: >
   python merge.py
   --length ${{inputs.length}}
   --sentiment ${{inputs.sentiment}}
@@ -26,6 +26,4 @@ command: >-
   --sbert ${{inputs.sbert}}
   --out ${{outputs.out}}
 
-environment:
-  image: mcr.microsoft.com/azureml/openmpi4.1.0-ubuntu20.04:latest
-  conda_file: conda.yml
+environment: azureml:AzureML-sklearn-1.1-ubuntu20.04-py38-cpu@latest

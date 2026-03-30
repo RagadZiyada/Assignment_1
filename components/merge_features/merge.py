@@ -2,6 +2,10 @@ import argparse
 import os
 import pandas as pd
 
+
+KEY_COLUMNS = ["asin", "reviewerID"]
+
+
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--length", type=str, required=True)
@@ -11,53 +15,60 @@ def parse_args():
     parser.add_argument("--out", type=str, required=True)
     return parser.parse_args()
 
-def resolve_parquet_path(input_path: str) -> str:
-    if os.path.isfile(input_path):
-        return input_path
 
-    candidate = os.path.join(input_path, "data.parquet")
-    if os.path.exists(candidate):
-        return candidate
+def load_df(path):
+    return pd.read_parquet(path)
 
-    parquet_files = [
-        os.path.join(input_path, f)
-        for f in os.listdir(input_path)
-        if f.endswith(".parquet")
-    ]
-    if parquet_files:
-        return parquet_files[0]
 
-    raise FileNotFoundError(f"No parquet file found in: {input_path}")
+def safe_merge(left, right, name):
+    for col in KEY_COLUMNS:
+        if col not in left.columns or col not in right.columns:
+            raise RuntimeError(f"Missing key column '{col}' while merging {name}")
+    return left.merge(right, on=KEY_COLUMNS, how="inner")
+
+
+def drop_duplicate_non_key_columns(df, protected_cols):
+    seen = set()
+    keep_cols = []
+    for col in df.columns:
+        if col in protected_cols:
+            keep_cols.append(col)
+        elif col not in seen:
+            keep_cols.append(col)
+            seen.add(col)
+    return df[keep_cols]
+
 
 def main():
     args = parse_args()
 
-    length_path = resolve_parquet_path(args.length)
-    sentiment_path = resolve_parquet_path(args.sentiment)
-    tfidf_path = resolve_parquet_path(args.tfidf)
-    sbert_path = resolve_parquet_path(args.sbert)
+    length_df = load_df(args.length)
+    sentiment_df = load_df(args.sentiment)
+    tfidf_df = load_df(args.tfidf)
+    sbert_df = load_df(args.sbert)
 
-    print(f"Reading length from: {length_path}")
-    print(f"Reading sentiment from: {sentiment_path}")
-    print(f"Reading tfidf from: {tfidf_path}")
-    print(f"Reading sbert from: {sbert_path}")
+    # preserve one copy of overall if present
+    protected_cols = set(KEY_COLUMNS + ["overall"])
 
-    length_df = pd.read_parquet(length_path)
-    sentiment_df = pd.read_parquet(sentiment_path)
-    tfidf_df = pd.read_parquet(tfidf_path)
-    sbert_df = pd.read_parquet(sbert_path)
+    merged = safe_merge(length_df, sentiment_df, "length + sentiment")
+    merged = drop_duplicate_non_key_columns(merged, protected_cols)
 
-    merged = length_df.merge(sentiment_df, on=["asin", "reviewerID"], how="inner")
-    merged = merged.merge(tfidf_df, on=["asin", "reviewerID"], how="inner")
-    merged = merged.merge(sbert_df, on=["asin", "reviewerID"], how="inner")
+    merged = safe_merge(merged, tfidf_df, "previous + tfidf")
+    merged = drop_duplicate_non_key_columns(merged, protected_cols)
+
+    merged = safe_merge(merged, sbert_df, "previous + sbert")
+    merged = drop_duplicate_non_key_columns(merged, protected_cols)
 
     os.makedirs(args.out, exist_ok=True)
-    output_path = os.path.join(args.out, "data.parquet")
-    merged.to_parquet(output_path, index=False)
+    out_path = os.path.join(args.out, "data.parquet")
+    merged.to_parquet(out_path, index=False)
 
-    print(f"Saved merged features to: {output_path}")
     print("Merged rows:", len(merged))
     print("Merged columns:", len(merged.columns))
+    print("Output written to:", out_path)
+    print("Contains keys:", [c for c in KEY_COLUMNS if c in merged.columns])
+    print("Contains overall:", "overall" in merged.columns)
+
 
 if __name__ == "__main__":
     main()

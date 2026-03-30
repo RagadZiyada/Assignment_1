@@ -3,75 +3,87 @@ import os
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 
+
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--train", type=str, required=True)
     parser.add_argument("--val", type=str, required=True)
     parser.add_argument("--test", type=str, required=True)
+    parser.add_argument("--deploy", type=str, required=True)
+    parser.add_argument("--max_features", type=int, default=1000)
     parser.add_argument("--train_out", type=str, required=True)
     parser.add_argument("--val_out", type=str, required=True)
     parser.add_argument("--test_out", type=str, required=True)
+    parser.add_argument("--deploy_out", type=str, required=True)
     return parser.parse_args()
 
-def resolve_parquet_path(input_path: str) -> str:
-    if os.path.isfile(input_path):
-        return input_path
 
-    candidate = os.path.join(input_path, "data.parquet")
-    if os.path.exists(candidate):
-        return candidate
+def load_df(path):
+    return pd.read_parquet(path)
 
-    parquet_files = [
-        os.path.join(input_path, f)
-        for f in os.listdir(input_path)
-        if f.endswith(".parquet")
-    ]
-    if parquet_files:
-        return parquet_files[0]
 
-    raise FileNotFoundError(f"No parquet file found in: {input_path}")
+def get_text_column(df):
+    candidates = ["reviewText", "review_text", "text", "normalized_text"]
+    for col in candidates:
+        if col in df.columns:
+            return col
+    raise RuntimeError(
+        f"Could not find a text column. Tried: {candidates}. Found columns: {list(df.columns)}"
+    )
 
-def save_dense_df(matrix, keys_df, feature_names, out_dir):
+
+def transform_split(df, vectorizer, text_col):
+    transformed = vectorizer.transform(df[text_col].fillna("").astype(str))
+    tfidf_df = pd.DataFrame(
+        transformed.toarray(),
+        columns=[f"tfidf_{i}" for i in range(transformed.shape[1])],
+        index=df.index
+    )
+
+    base_cols = [c for c in ["asin", "reviewerID", "overall"] if c in df.columns]
+    result = pd.concat([df[base_cols].reset_index(drop=True), tfidf_df.reset_index(drop=True)], axis=1)
+    return result
+
+
+def save_df(df, out_dir):
     os.makedirs(out_dir, exist_ok=True)
-    tfidf_df = pd.DataFrame(matrix.toarray(), columns=feature_names)
-    final_df = pd.concat([keys_df.reset_index(drop=True), tfidf_df.reset_index(drop=True)], axis=1)
-    final_df.to_parquet(os.path.join(out_dir, "data.parquet"), index=False)
+    df.to_parquet(os.path.join(out_dir, "data.parquet"), index=False)
+
 
 def main():
     args = parse_args()
 
-    train_path = resolve_parquet_path(args.train)
-    val_path = resolve_parquet_path(args.val)
-    test_path = resolve_parquet_path(args.test)
+    train_df = load_df(args.train)
+    val_df = load_df(args.val)
+    test_df = load_df(args.test)
+    deploy_df = load_df(args.deploy)
 
-    print(f"Reading train from: {train_path}")
-    print(f"Reading val from: {val_path}")
-    print(f"Reading test from: {test_path}")
-
-    train_df = pd.read_parquet(train_path)
-    val_df = pd.read_parquet(val_path)
-    test_df = pd.read_parquet(test_path)
-
-    for df in [train_df, val_df, test_df]:
-        df["reviewText"] = df["reviewText"].fillna("").astype(str)
+    text_col = get_text_column(train_df)
 
     vectorizer = TfidfVectorizer(
-        max_features=200,
+        max_features=args.max_features,
         stop_words="english",
         ngram_range=(1, 2)
     )
 
-    X_train = vectorizer.fit_transform(train_df["reviewText"])
-    X_val = vectorizer.transform(val_df["reviewText"])
-    X_test = vectorizer.transform(test_df["reviewText"])
+    vectorizer.fit(train_df[text_col].fillna("").astype(str))
 
-    feature_names = [f"tfidf_{f}" for f in vectorizer.get_feature_names_out()]
+    train_out_df = transform_split(train_df, vectorizer, text_col)
+    val_out_df = transform_split(val_df, vectorizer, text_col)
+    test_out_df = transform_split(test_df, vectorizer, text_col)
+    deploy_out_df = transform_split(deploy_df, vectorizer, text_col)
 
-    save_dense_df(X_train, train_df[["asin", "reviewerID"]], feature_names, args.train_out)
-    save_dense_df(X_val, val_df[["asin", "reviewerID"]], feature_names, args.val_out)
-    save_dense_df(X_test, test_df[["asin", "reviewerID"]], feature_names, args.test_out)
+    save_df(train_out_df, args.train_out)
+    save_df(val_out_df, args.val_out)
+    save_df(test_out_df, args.test_out)
+    save_df(deploy_out_df, args.deploy_out)
 
-    print("TF-IDF completed successfully")
+    print("TF-IDF features created successfully.")
+    print("Train rows:", len(train_out_df))
+    print("Val rows:", len(val_out_df))
+    print("Test rows:", len(test_out_df))
+    print("Deploy rows:", len(deploy_out_df))
+
 
 if __name__ == "__main__":
     main()
