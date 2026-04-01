@@ -159,5 +159,7 @@ This confirms the model generalizes to new unseen data.
 <img width="1811" height="725" alt="Screenshot 2026-03-30 213057" src="https://github.com/user-attachments/assets/49be6d32-3a89-42a5-9878-3d9802ecb1fd" />
 <img width="761" height="203" alt="Screenshot 2026-03-30 235833" src="https://github.com/user-attachments/assets/5d282f49-bbd8-4ba7-a641-f5340f6b7c14" />
 <img width="1893" height="825" alt="Screenshot 2026-04-01 121613" src="https://github.com/user-attachments/assets/29c08dc6-e4f2-49dc-a9be-5343b7017b5e" />
+<img width="1857" height="875" alt="image" src="https://github.com/user-attachments/assets/74c60d0c-c475-4028-b538-12e12c857b75" />
+
 
 
